@@ -23,12 +23,14 @@ import time
 # stop: ctrl + C in cmd
 
 # ------- Static data ----------------
+# Not used yet, hopefuly will be used to categorize graph legend in years
 twentyseventeenjanfirst = 1483228800000
 twentyeighteenjanfirst = 1514764800000
 twentynineteenjanfirst = 1546300800000
 twentytwentyjanfirst = 1577836800000
 twentytwentyonejanfirst = 1609459200000
 twentytwentytwojanfirst = 1640995200000
+
 
 # ------- Loading CSV Data ------------
 SPXdf = pd.read_csv('SPX.csv')
@@ -39,6 +41,7 @@ GFRdf = pd.read_csv('GFR.csv')
 GFRdf = GFRdf.set_index('TimeStamp')
 # st.write(GFRdf)
 # st.line_chart(GFRdf)
+
 
 # ------- Smoothing data -----------
 # Joining data in single dataframe
@@ -53,37 +56,40 @@ globaldf.fillna(method='ffill', inplace = True)
 boolGFR = globaldf['GFR'] == 'POSITIVE'
 # st.write(boolGFR)
 
+
+# ------- Computing Strategy Results -----------
 # Initializing the strategy value with same base as SPX
-#cheating again to avoid 0 cases at start
 strategy = [globaldf.iloc[0]['SPX']] 
 
-iterator = 1 # Avoiding the weekend with identical values
+# Filling strategy result
+iterator = 1
 maxIterator = len(globaldf)
 
 while iterator < maxIterator:
     # If we are risk on
     if(boolGFR[iterator]):
-        # We grow in same proportion as SPX
+        # We grow our current "wealth" in same proportion as SPX
         growthRate = 1 + (globaldf.iloc[iterator]['SPX'] - globaldf.iloc[iterator-1]['SPX']) / globaldf.iloc[iterator]['SPX']
         strategy.append(strategy[iterator-1] * growthRate)
     
     # If we are risk off
     if(not boolGFR[iterator]):
-        # We have a growth of 0
+        # We have a growth of 0, we keep the previous value
         strategy.append(strategy[iterator-1])
        
     iterator += 1
 
-#Creating dataframe from list with same index as the others with the dates
+#Creating dataframe from Strategy list with same index as the others with the dates
 Strategydf = pd.DataFrame(index=globaldf.index, data=strategy, columns={'Strategy'})
 
-# Joining data in a single dataframe
+# Joining Strategy and SPX data in a single dataframe
 fullDataFrame = pd.concat([globaldf['SPX'], Strategydf], axis = 1)
 
 # Computing generated Alpha
 fullDataFrame['Alpha'] = fullDataFrame['Strategy'] - fullDataFrame['SPX']
 
 
+# ------- Streamlit Display -----------
 # Display everything
 st.write("# Backtest GFR in Streamlit")
 st.write("I built this webpage for two main reasons. First, I was curious to see a small backtest of the Global Financial Risk from the Investment Workbench, even a naive one. And secondly, I wanted to code a bit by myself again, and give a try to streamlit :smile: I downloaded GFR and S&P values from the IWB API and used it to plot the graphs below.")
