@@ -22,7 +22,13 @@ import time
 # launch: cmd -> go in directory -> streamlit run test.py
 # stop: ctrl + C in cmd
 
-st.write("# Test Streamlit and BacktestGFR")
+# ------- Static data ----------------
+twentyseventeenjanfirst = 1483228800000
+twentyeighteenjanfirst = 1514764800000
+twentynineteenjanfirst = 1546300800000
+twentytwentyjanfirst = 1577836800000
+twentytwentyonejanfirst = 1609459200000
+twentytwentytwojanfirst = 1640995200000
 
 # ------- Loading CSV Data ------------
 SPXdf = pd.read_csv('SPX.csv')
@@ -43,14 +49,15 @@ globaldf = GFRdf.join(SPXdf, how = 'outer')
 globaldf.fillna(method='ffill', inplace = True)
 # st.write(globaldf)
 
+# Convertine GFR in bool
 boolGFR = globaldf['GFR'] == 'POSITIVE'
 # st.write(boolGFR)
 
 # Initializing the strategy value with same base as SPX
 #cheating again to avoid 0 cases at start
-strategy = [globaldf.iloc[0]['SPX'], globaldf.iloc[0]['SPX'], globaldf.iloc[0]['SPX']] 
+strategy = [globaldf.iloc[0]['SPX']] 
 
-iterator = 3 # Avoiding the weekend with identical values
+iterator = 1 # Avoiding the weekend with identical values
 maxIterator = len(globaldf)
 
 while iterator < maxIterator:
@@ -78,6 +85,13 @@ fullDataFrame['Alpha'] = fullDataFrame['Strategy'] - fullDataFrame['SPX']
 
 
 # Display everything
+st.write("# Backtest GFR in Streamlit")
+st.write("I built this webpage for two main reasons. First, I was curious to see a small backtest of the Global Financial Risk from the Investment Workbench, even a naive one. And secondly, I wanted to code a bit by myself again, and give a try to streamlit :smile: I downloaded GFR and S&P values from the IWB API and used it to plot the graphs below.")
+st.markdown("The Strategy backtested here is quite simple:")
+st.markdown(" - We start with with exactly the same as the S&P value.")
+st.markdown(" - Then, if the GFR is positive and Risk-On :thumbsup:, we assume we get the same return as the S&P, positive or negative.")
+st.markdown(" - If the GFR is negative and Risk-Off :thumbsdown:, we assume that we get 0 return, as if we were full cash, and our strategy does not move.")
+st.write("The strategy below is run on a 6y period. Please do not pay attention to the graph legend, for some reason, streamlit shows the date of everyday, I did not fix that yet.")
 
 st.write("## S&P, Risk-based Strategy and Alpha")
 st.line_chart(fullDataFrame)

@@ -33,7 +33,7 @@ milliSecondsInDay = 86400000
 milliSecondsInYear = 31536000000
 
 # -------- Script user inputs ----------
-yearInterval = 5        # Defines the number of year one wants data for
+yearInterval = 6        # Defines the number of year one wants data for
 milliSecondsOrYear = 1  # Defines if one wants timestamps in ms (0) or real dates (1) in the csv files
 
 # starting milliSecondsIterator years ago
@@ -67,9 +67,15 @@ while milliSecondsIterator < milliSecondsCurrentTime:
     GFRList.append(reqIWBGFR.json()['interpretation']['outlook'])
     
     milliSecondsIterator += milliSecondsInDay
-    if((milliSecondsIterator - startDate) / (milliSecondsCurrentTime - startDate) > 0.5 and displayCounterGFR == 0):
-        print("GFR at 50%")
+    if((milliSecondsIterator - startDate) / (milliSecondsCurrentTime - startDate) > 0.25 and displayCounterGFR == 0):
+        print("GFR at 25%")
         displayCounterGFR = 1
+    if((milliSecondsIterator - startDate) / (milliSecondsCurrentTime - startDate) > 0.5 and displayCounterGFR == 1):
+        print("GFR at 50%")
+        displayCounterGFR = 2
+    if((milliSecondsIterator - startDate) / (milliSecondsCurrentTime - startDate) > 0.75 and displayCounterGFR == 2):
+        print("GFR at 75%")
+        displayCounterGFR = 3
 
 d1 = {'TimeStamp': dataStampListGFR,  'GFR': GFRList}
 df = pd.DataFrame(data = d1)
