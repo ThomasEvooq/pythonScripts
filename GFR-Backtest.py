@@ -22,6 +22,19 @@ import time
 # launch: cmd -> go in directory -> streamlit run test.py
 # stop: ctrl + C in cmd
 
+# -------- Streamlit intro text ----------
+st.write("# Backtest GFR in Streamlit")
+st.write("I built this webpage for two main reasons. First, I was curious to see a small backtest of the Global Financial Risk from the Investment Workbench, even a naive one :chart_with_upwards_trend:. And secondly, I wanted to code a bit by myself again, and give a try to streamlit :smile: I downloaded GFR and S&P values from the IWB API and used it to plot the graphs below.")
+st.markdown("The Strategy backtested here is quite simple:")
+st.markdown(" - We start with with exactly the same as the S&P value.")
+st.markdown(" - Then, if the GFR is positive and Risk-On :thumbsup:, we assume we get the same return as the S&P, positive or negative.")
+st.markdown(" - If the GFR is negative and Risk-Off :thumbsdown:, we assume that we get 0 return, as if we were full cash, and our strategy does not move. We do not consider how much negative the GFR is.")
+st.write("The strategy below is run on a 6y period. Please do not pay attention to the graph legend, for some reason, streamlit shows the date of everyday, I did not fix that yet.")
+st.write("Honestly this analsis and display could have been done in excel, but I really wanted to try streamlit by myself :smile:")
+
+# Backtest duration input from user might come later
+# backtestDuration = st.slider('How many years to backtest?', 1, 8, 6)
+
 # ------- Static data ----------------
 # Not used yet, hopefuly will be used to categorize graph legend in years
 twentyseventeenjanfirst = 1483228800000
@@ -90,14 +103,6 @@ fullDataFrame['Alpha'] = fullDataFrame['Strategy'] - fullDataFrame['SPX']
 
 
 # ------- Streamlit Display -----------
-# Display everything
-st.write("# Backtest GFR in Streamlit")
-st.write("I built this webpage for two main reasons. First, I was curious to see a small backtest of the Global Financial Risk from the Investment Workbench, even a naive one. And secondly, I wanted to code a bit by myself again, and give a try to streamlit :smile: I downloaded GFR and S&P values from the IWB API and used it to plot the graphs below.")
-st.markdown("The Strategy backtested here is quite simple:")
-st.markdown(" - We start with with exactly the same as the S&P value.")
-st.markdown(" - Then, if the GFR is positive and Risk-On :thumbsup:, we assume we get the same return as the S&P, positive or negative.")
-st.markdown(" - If the GFR is negative and Risk-Off :thumbsdown:, we assume that we get 0 return, as if we were full cash, and our strategy does not move.")
-st.write("The strategy below is run on a 6y period. Please do not pay attention to the graph legend, for some reason, streamlit shows the date of everyday, I did not fix that yet.")
 
 st.write("## S&P, Risk-based Strategy and Alpha")
 st.line_chart(fullDataFrame)
