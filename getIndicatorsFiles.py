@@ -38,7 +38,7 @@ milliSecondsOrYear = 1  # Defines if one wants timestamps in ms (0) or real date
 
 # starting milliSecondsIterator years ago
 startDate = milliSecondsCurrentTime - (yearInterval*milliSecondsInYear)
-
+print("Launching script to get " + str(yearInterval) + " years of data.")
 
 # ----------------- GFR Gathering ----------------------
 # Gathering GFR value over time
