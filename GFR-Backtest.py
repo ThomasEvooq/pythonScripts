@@ -27,8 +27,7 @@ st.write("# Test Streamlit and BacktestGFR")
 # ------- Loading CSV Data ------------
 SPXdf = pd.read_csv('SPX.csv')
 SPXdf = SPXdf.set_index('TimeStamp')
-# st.write(SPXdf)
-# st.line_chart(SPXdf)
+# st.write(SPXdf) 
 
 GFRdf = pd.read_csv('GFR.csv')
 GFRdf = GFRdf.set_index('TimeStamp')
@@ -72,7 +71,7 @@ while iterator < maxIterator:
 Strategydf = pd.DataFrame(index=globaldf.index, data=strategy, columns={'Strategy'})
 
 # Joining data in a single dataframe
-fullDataFrame = pd.concat([SPXdf, Strategydf], axis = 1)
+fullDataFrame = pd.concat([globaldf['SPX'], Strategydf], axis = 1)
 
 # Computing generated Alpha
 fullDataFrame['Alpha'] = fullDataFrame['Strategy'] - fullDataFrame['SPX']
