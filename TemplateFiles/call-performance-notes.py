@@ -11,6 +11,32 @@ token = ""
 
 # DO NOT PUSH TO GIT WITH CLEAR TOKEN
 
+
+Notes sur la TAA:
+1. créer la classificatoin
+2. définir baskets - modelptf? - benchmark!
+3. créer SAA et bounds par classif
+4. puis créer des alloc bench
+
+créer basket vide possible
+créer alloc liant au basket
+
+basket : list <alloc>, alloc = ticker weight
+
+bench = basket pc on a des poids
+saa c'est les bounds, obligé pour avoir ptf
+
+
+
+perf tw
+
+utiliser le "swagger" créé par le FE c'est plus simple
+faut me redire quand c'est déployé?
+
+
+
+# ----------------------------------------------------------
+
 call request: to  https://iwb.evooq.io/api/indicators/timeseries/raw/performance
 
 à mettre dans le body de la requête:
