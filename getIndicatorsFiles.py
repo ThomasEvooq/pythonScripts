@@ -33,90 +33,100 @@ milliSecondsInDay = 86400000
 milliSecondsInYear = 31536000000
 
 # -------- Script user inputs ----------
-yearInterval = 6        # Defines the number of year one wants data for
-milliSecondsOrYear = 1  # Defines if one wants timestamps in ms (0) or real dates (1) in the csv files
+yearInterval = 50        # Defines the number of year one wants data for
+milliSecondsOrYear = 1   # Defines if one wants timestamps in ms (0) or real dates (1) in the csv files
+gatherGFR = False         # Defines if we gather GFR Data
+gatherSP = True          # Defines if we gather SP data
 
 # starting milliSecondsIterator years ago
 startDate = milliSecondsCurrentTime - (yearInterval*milliSecondsInYear)
 print("Launching script to get " + str(yearInterval) + " years of data.")
 
 # ----------------- GFR Gathering ----------------------
-# Gathering GFR value over time
-milliSecondsIterator = startDate
 
-dataStampListGFR = []
-GFRList = []
-displayCounterGFR = 0
+if gatherGFR:
+    # Gathering GFR value over time
+    milliSecondsIterator = startDate
 
-baseRequestURLGFR = "https://iwb.evooq.io/api/indicators/timeseries/global-financial-risk/summary?asOf="
+    dataStampListGFR = []
+    GFRList = []
+    displayCounterGFR = 0
 
-while milliSecondsIterator < milliSecondsCurrentTime:
-    timeStringRequestURL = str(milliSecondsIterator)
-    fullRequestURLGFR = baseRequestURLGFR + timeStringRequestURL
-    # print(fullRequestURL)
+    baseRequestURLGFR = "https://iwb.evooq.io/api/indicators/timeseries/global-financial-risk/summary?asOf="
 
-    reqIWBGFR = requests.get(fullRequestURLGFR, headers={"Authorization": f"Bearer {token}"})
-    #print(reqIWBGFR.json())
+    while milliSecondsIterator < milliSecondsCurrentTime:
+        timeStringRequestURL = str(milliSecondsIterator)
+        fullRequestURLGFR = baseRequestURLGFR + timeStringRequestURL
+        # print(fullRequestURL)
 
-    if(milliSecondsOrYear == 0):
-        dataStampListGFR.append(milliSecondsIterator)
-    
-    if(milliSecondsOrYear == 1):
-        dataStampListGFR.append(datetime.datetime.fromtimestamp(milliSecondsIterator/1000))
+        reqIWBGFR = requests.get(fullRequestURLGFR, headers={"Authorization": f"Bearer {token}"})
+        #print(reqIWBGFR.json())
 
-    GFRList.append(reqIWBGFR.json()['interpretation']['outlook'])
-    
-    milliSecondsIterator += milliSecondsInDay
-    if((milliSecondsIterator - startDate) / (milliSecondsCurrentTime - startDate) > 0.25 and displayCounterGFR == 0):
-        print("GFR at 25%")
-        displayCounterGFR = 1
-    if((milliSecondsIterator - startDate) / (milliSecondsCurrentTime - startDate) > 0.5 and displayCounterGFR == 1):
-        print("GFR at 50%")
-        displayCounterGFR = 2
-    if((milliSecondsIterator - startDate) / (milliSecondsCurrentTime - startDate) > 0.75 and displayCounterGFR == 2):
-        print("GFR at 75%")
-        displayCounterGFR = 3
+        if(milliSecondsOrYear == 0):
+            dataStampListGFR.append(milliSecondsIterator)
+        
+        if(milliSecondsOrYear == 1):
+            dataStampListGFR.append(datetime.datetime.fromtimestamp(milliSecondsIterator/1000))
 
-d1 = {'TimeStamp': dataStampListGFR,  'GFR': GFRList}
-df = pd.DataFrame(data = d1)
-df.to_csv('GFR.csv',index=False)
+        GFRList.append(reqIWBGFR.json()['interpretation']['outlook'])
+        
+        milliSecondsIterator += milliSecondsInDay
+        if((milliSecondsIterator - startDate) / (milliSecondsCurrentTime - startDate) > 0.25 and displayCounterGFR == 0):
+            print("GFR at 25%")
+            displayCounterGFR = 1
+        if((milliSecondsIterator - startDate) / (milliSecondsCurrentTime - startDate) > 0.5 and displayCounterGFR == 1):
+            print("GFR at 50%")
+            displayCounterGFR = 2
+        if((milliSecondsIterator - startDate) / (milliSecondsCurrentTime - startDate) > 0.75 and displayCounterGFR == 2):
+            print("GFR at 75%")
+            displayCounterGFR = 3
 
-print("GFR Completed")
+    d1 = {'TimeStamp': dataStampListGFR,  'GFR': GFRList}
+    df = pd.DataFrame(data = d1)
+    df.to_csv('GFR.csv',index=False)
+
+    print("GFR Completed")
 
 # ----------------- SPX Gathering ----------------------
-# Gathering whole SPX time serie
-baseRequestURLSPX = "https://iwb.evooq.io/api/indicators/timeseries/spx?from="
-fullRequestURLSPX = baseRequestURLSPX + str(startDate) + "&to=" + str(milliSecondsCurrentTime)
-reqIWBSPX = requests.get(fullRequestURLSPX, headers={"Authorization": f"Bearer {token}"})
 
-Iterator2 = 0
+if gatherSP:
+    # Gathering whole SPX time serie
+    baseRequestURLSPX = "https://iwb.evooq.io/api/indicators/timeseries/spx?from="
+    fullRequestURLSPX = baseRequestURLSPX + str(startDate) + "&to=" + str(milliSecondsCurrentTime)
+    reqIWBSPX = requests.get(fullRequestURLSPX, headers={"Authorization": f"Bearer {token}"})
 
-# We do not have daily data, only business day data, hence around 260 daily data points per year
-maxIterator2 = len(reqIWBSPX.json()['data'])
-# maxIterator2 = (milliSecondsCurrentTime - startDate)/milliSecondsInDay # That gives 365 days for a year and hence does not work
+    Iterator2 = 0
+    # We do not have daily data, only business day data, hence around 260 daily data points per year
+    maxIterator2 = len(reqIWBSPX.json()['data'])
+    # maxIterator2 = (milliSecondsCurrentTime - startDate)/milliSecondsInDay # That gives 365 days for a year and hence does not work
 
-dataStampListSPX = []
-SPXList = []
-displayCounterSPX = 0
+    dataStampListSPX = []
+    SPXList = []
+    displayCounterSPX = 0
 
-while Iterator2 < maxIterator2:
-    
-    if(milliSecondsOrYear == 0):
-        dataStampListSPX.append(reqIWBSPX.json()['data'][Iterator2]['timestamp'])
-    
-    if(milliSecondsOrYear == 1): 
-        dataStampListSPX.append(datetime.datetime.fromtimestamp(reqIWBSPX.json()['data'][Iterator2]['timestamp']/1000))
+    while Iterator2 < maxIterator2:
+        
+        if(milliSecondsOrYear == 0):
+            dataStampListSPX.append(reqIWBSPX.json()['data'][Iterator2]['timestamp'])
+        
+        if(milliSecondsOrYear == 1): 
+            dataStampListSPX.append(datetime.datetime.fromtimestamp(reqIWBSPX.json()['data'][Iterator2]['timestamp']/1000))
 
-    SPXList.append(reqIWBSPX.json()['data'][Iterator2]['value'])
-    Iterator2 += 1
-    
-    if((Iterator2 / Iterator2) > 0.5 and displayCounterSPX == 0):
-        print("SPX at 50%")
-        displayCounterSPX = 1
-    
+        SPXList.append(reqIWBSPX.json()['data'][Iterator2]['value'])
+        Iterator2 += 1
+        
+        if((Iterator2 / maxIterator2) > 0.25 and displayCounterSPX == 0):
+            print("SPX at 25%")
+            displayCounterSPX = 1
+        if((Iterator2 / maxIterator2) > 0.5 and displayCounterSPX == 1):
+            print("SPX at 50%")
+            displayCounterSPX = 2
+        if((Iterator2 / maxIterator2) > 0.75 and displayCounterSPX == 2):
+            print("SPX at 75%")
+            displayCounterSPX = 3      
 
-d2 = {'TimeStamp': dataStampListSPX,  'SPX': SPXList}
-df = pd.DataFrame(data = d2)
-df.to_csv('SPX.csv',index=False)
+    d2 = {'TimeStamp': dataStampListSPX,  'SPX': SPXList}
+    df = pd.DataFrame(data = d2)
+    df.to_csv('SPX.csv',index=False)
 
-print("SPX Completed")
+    print("SPX Completed")
